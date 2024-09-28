@@ -2,26 +2,27 @@ library(dplyr)
 library(ggplot2)
 
 most_vulnerable_vendor_over_two_dates_time_series_chart <- function(csv_file_path, start_date, end_date, time_unit = "month") {
-  
+
   cve_data <- read.csv(csv_file_path, stringsAsFactors = FALSE)
-  
+
   cve_data$Published_Date <- as.Date(cve_data$Published_Date, format = "%Y-%m-%d")
-  
+  cve_data$Base_Score <- as.numeric(cve_data$Base_Score)
+
   filtered_cve_data <- cve_data %>%
     filter(Published_Date >= start_date & Published_Date <= end_date) %>%
-    filter(!is.na(Vendor) & !is.na(Product))
-  
+    filter(!is.na(Vendor) & !is.na(Product) & !is.na(Base_Score))
+
   vendor_counts <- filtered_cve_data %>%
     group_by(Vendor) %>%
     summarise(Total_Vulnerabilities = n()) %>%
     arrange(desc(Total_Vulnerabilities))
-  
+
   top_vendor <- vendor_counts$Vendor[1]
   print(paste("Top vendor:", top_vendor))
-  
+
   top_vendor_data <- filtered_cve_data %>%
     filter(Vendor == top_vendor)
-  
+
   if (time_unit == "month") {
     top_vendor_data$TimePeriod <- format(top_vendor_data$Published_Date, "%Y-%m")
   } else if (time_unit == "week") {
@@ -29,30 +30,41 @@ most_vulnerable_vendor_over_two_dates_time_series_chart <- function(csv_file_pat
   } else {
     stop("Invalid time_unit. Use 'month' or 'week'.")
   }
-  
+
   time_series_data <- top_vendor_data %>%
     group_by(TimePeriod) %>%
-    summarise(Vulnerability_Count = n()) %>%
+    summarise(
+      Vulnerability_Count = n(),
+      Average_Score = mean(Base_Score, na.rm = TRUE),
+      .groups = 'drop'
+    ) %>%
     arrange(TimePeriod)
-  
+
   if (time_unit == "month") {
     time_series_data$TimePeriod <- as.Date(paste0(time_series_data$TimePeriod, "-01"))
   } else if (time_unit == "week") {
     time_series_data$TimePeriod <- as.Date(strptime(time_series_data$TimePeriod, format="%Y-%U"))
   }
-  
-  ggplot(data = time_series_data, aes(x = TimePeriod, y = Vulnerability_Count)) +
-    geom_line(color = "#2C3E50", size = 1.2) +
-    geom_point(color = "#E74C3C", size = 3) +
-    geom_text(aes(label = Vulnerability_Count), 
-              vjust = -0.8, hjust = 0.5, size = 3, 
+
+  p <- ggplot(data = time_series_data) +
+    geom_line(aes(x = TimePeriod, y = Vulnerability_Count, color = "Vulnerability Count"), size = 1.2) +
+    geom_point(aes(x = TimePeriod, y = Vulnerability_Count, color = "Vulnerability Count"), size = 3) +
+    geom_line(aes(x = TimePeriod, y = Average_Score, color = "Average Score"), size = 1.2, linetype = "dashed") +
+    geom_point(aes(x = TimePeriod, y = Average_Score, color = "Average Score"), size = 3) +
+    geom_text(aes(x = TimePeriod, y = Vulnerability_Count, label = Vulnerability_Count),
+              vjust = -0.8, hjust = 0.5, size = 3,
               color = "#34495E", fontface = "bold") +
+    geom_text(aes(x = TimePeriod, y = Average_Score, label = round(Average_Score, 2)),
+              vjust = 1.5, hjust = 0.5, size = 3,
+              color = "#34495E", fontface = "italic") +
     theme_dark(base_family = "Arial") +
     labs(title = paste("Vulnerability Trend for Top Vendor:", top_vendor),
          subtitle = paste("Date Range:", format(start_date, "%b %Y"), "to", format(end_date, "%b %Y")),
          x = "Time Period",
-         y = "Number of Vulnerabilities") +
+         y = "Number of Vulnerabilities / Average Score",
+         color = "Metric") +
     scale_x_date(date_labels = "%b %Y", date_breaks = "1 month") +
+    scale_color_manual(values = c("Vulnerability Count" = "#2C3E50", "Average Score" = "#E74C3C")) +
     theme(
       plot.title = element_text(size = 14, face = "bold", color = "#2C3E50"),
       plot.subtitle = element_text(size = 10, color = "#7F8C8D"),
@@ -64,15 +76,16 @@ most_vulnerable_vendor_over_two_dates_time_series_chart <- function(csv_file_pat
       panel.grid.minor = element_blank(),
       panel.background = element_rect(fill = "#ECF0F1", color = NA)
     )
-  
-    ggsave("charts/5_most_vulnerable_vendor_over_two_dates_time_series_chart.png", width = 10, height = 6)
-    cat("Chart saved as 'charts/5_most_vulnerable_vendor_over_two_dates_time_series_chart.png'\n")
-    
+
+  print(p)
+
+  ggsave("charts/5_most_vulnerable_vendor_over_two_dates_time_series_chart.png", plot = p, width = 10, height = 6)
+  cat("Chart saved as 'charts/5_most_vulnerable_vendor_over_two_dates_time_series_chart.png'\n")
+
 }
 
-# csv_file_path <- "vulnerability_data.csv"
-# start_date <- as.Date("2020-01-01")
-# end_date <- as.Date("2020-12-31")
+csv_file_path <- "vulnerability_data.csv"
+start_date <- as.Date("2020-01-01")
+end_date <- as.Date("2020-12-31")
 
-# most_vulnerable_vendor_over_two_dates_time_series_chart(csv_file_path, start_date, end_date, time_unit = "month")
-
+most_vulnerable_vendor_over_two_dates_time_series_chart(csv_file_path, start_date, end_date, time_unit = "month")

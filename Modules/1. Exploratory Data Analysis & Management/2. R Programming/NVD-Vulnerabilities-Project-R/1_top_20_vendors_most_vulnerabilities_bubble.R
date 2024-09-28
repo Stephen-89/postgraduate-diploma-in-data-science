@@ -18,20 +18,20 @@ top_20_vendors_with_most_vulnerabilities_chart <- function(csv_file_path) {
     arrange(desc(Vulnerability_Count)) %>%
     head(20)
 
+  # Create a bubble chart
   p <- ggplot(top_vendors_products, aes(x = reorder(Vendor, Vulnerability_Count),
-                                        y = Vulnerability_Count, fill = Vendor)) +
-    geom_bar(stat = "identity") +
-    geom_text(aes(label = Vulnerability_Count),
-              position = position_stack(vjust = 0.5),
-              color = "white",
-              size = 4.5) +
+                                        y = Vulnerability_Count,
+                                        size = Vulnerability_Count,
+                                        fill = Vendor)) +
+    geom_point(shape = 21, alpha = 0.7) +  # shape 21 allows filling
+    scale_size(range = c(2, 10)) +  # Adjust the range of bubble sizes
     coord_flip() +
-    labs(title = "Top 20 Vendors with most vulnerabilities",
+    labs(title = "Top 20 Vendors with Most Vulnerabilities",
          x = "Vendor",
          y = "Number of Vulnerabilities") +
     theme_dark() +
     theme(axis.text.y = element_text(size = 8),
-          legend.position = "right", # Position legend on the right
+          legend.position = "right",
           legend.title = element_text(size = 10),
           legend.text = element_text(size = 8))
 
