@@ -101,7 +101,7 @@
 				</div>
 			</div>
 		</section>
-		
+
 		<!-- Cards Section 2 -->
 		<section id="cards">
 			<h2>Cards 2</h2>
@@ -155,38 +155,66 @@
 			return title.length > maxLength ? title.slice(0, maxLength) + '...' : title;
 		}
 
+		// Fetch and display vulnerability statistics (mean, median, mode, std)
 		function loadPointsStats() {
-			
 			fetch('/api/v1.0/points-stats')
 				.then(response => response.json())
 				.then(data => {
-
 					// Update card values
 					document.getElementById('mean-value').textContent = data.mean;
 					document.getElementById('median-value').textContent = data.median;
 					document.getElementById('mode-value').textContent = data.mode;
 					document.getElementById('std-value').textContent = data.std;
 
-
-					// Limit the dataset to 2000 results
-					const limitedDataset = data.values.slice(0, 2000);
-					const filteredDataset = limitedDataset.filter(value => value <= 60);
-
-					// Load charts
+					// Load the charts for mean, median, mode, and standard deviation
 					loadPointsStatsMeanGraph(data.mean);
 					loadPointsStatsMedianGraph(data.median);
-					loadPointsStatsModeGraph(data.mode)
+					loadPointsStatsModeGraph(data.mode);
 					loadPointsStatsStdGraph(data.std);
 
-					loadMeanMedianModeChart(data.mean, data.median, data.mode, filteredDataset);
-
+					// Load combined chart for mean, median, and mode
+					loadMeanMedianModeChart(data.mean, data.median, data.mode, data.values);
 				})
 				.catch(error => {
-					console.error('Error fetching data:', error);
+					console.error('Error fetching stats:', error);
 				});
-				
 		}
 
+		// Fetch and display the top 10 vulnerabilities
+		function loadTopTenVulnerabilities() {
+			fetch('/api/v1.0/vulnerabilities')
+				.then(response => response.json())
+				.then(data => {
+					const labels = data.map(vuln => truncateTitle(vuln.cve_id));
+					const baseScores = data.map(vuln => vuln.base_score);
+
+					// Create a bar chart for vulnerabilities
+					const ctx = document.getElementById('commentsBarChart').getContext('2d');
+					new Chart(ctx, {
+						type: 'bar',
+						data: {
+							labels: labels,
+							datasets: [{
+								label: 'Base Scores',
+								data: baseScores,
+								backgroundColor: 'rgba(54, 162, 235, 0.2)',
+								borderColor: 'rgba(54, 162, 235, 1)',
+								borderWidth: 1
+							}]
+						},
+						options: {
+							scales: {
+								y: {beginAtZero: true}
+							}
+						}
+					});
+				})
+				.catch(error => {
+					console.error('Error fetching vulnerabilities:', error);
+				});
+		}
+
+		// Charts for mean, median, mode, and standard deviation
 		function loadPointsStatsMeanGraph(mean) {
 			const ctx = document.getElementById('meanChart').getContext('2d');
 			new Chart(ctx, {
@@ -203,9 +231,7 @@
 				},
 				options: {
 					scales: {
-						y: {
-							beginAtZero: true
-						}
+						y: {beginAtZero: true}
 					}
 				}
 			});
@@ -227,9 +253,7 @@
 				},
 				options: {
 					scales: {
-						y: {
-							beginAtZero: true
-						}
+						y: {beginAtZero: true}
 					}
 				}
 			});
@@ -251,9 +275,7 @@
 				},
 				options: {
 					scales: {
-						y: {
-							beginAtZero: true
-						}
+						y: {beginAtZero: true}
 					}
 				}
 			});
@@ -275,81 +297,10 @@
 				},
 				options: {
 					scales: {
-						y: {
-							beginAtZero: true
-						}
+						y: {beginAtZero: true}
 					}
 				}
 			});
-		}
-
-		// Fetch and Load Data for Bar Chart
-		function loadBarChart() {
-			fetch('/api/v1.0/top-ten-comments')
-				.then(response => response.json())
-				.then(data => {
-
-					const labels = data.map(post => truncateTitle(post.title));
-					const commentCounts = data.map(post => post.num_comments);
-					const ctx = document.getElementById('commentsBarChart').getContext('2d');
-					new Chart(ctx, {
-						type: 'bar',
-						data: {
-							labels: labels,
-							datasets: [{
-								label: 'Number of Comments',
-								data: commentCounts,
-								backgroundColor: 'rgba(54, 162, 235, 0.2)',
-								borderColor: 'rgba(54, 162, 235, 1)',
-								borderWidth: 1
-							}]
-						},
-						options: {
-							scales: {
-								y: {beginAtZero: true}
-							}
-						}
-					});
-
-					const resultsList = document.getElementById('results-list');
-					resultsList.innerHTML = '';
-					data.forEach(post => {
-						const li = document.createElement('li');
-						li.className = 'list-group-item';
-						li.textContent = `${post.title} - Comments: ${post.num_comments}, Points: ${post.num_points}`;
-						resultsList.appendChild(li);
-					});
-
-				});
-		}
-
-		// Fetch and Load Data for Line Chart
-		function loadLineChart() {
-			fetch('/api/v1.0/top-ten-points')
-				.then(response => response.json())
-				.then(data => {
-					const labels = data.map(post => truncateTitle(post.title));
-					const pointCounts = data.map(post => post.num_points);
-					const ctx = document.getElementById('pointsLineChart').getContext('2d');
-					new Chart(ctx, {
-						type: 'line',
-						data: {
-							labels: labels,
-							datasets: [{
-								label: 'Number of Points',
-								data: pointCounts,
-								borderColor: 'rgba(75, 192, 192, 1)',
-								borderWidth: 2,
-								fill: false
-							}]
-						},
-						options: {
-							scales: {
-								y: {beginAtZero: true}
-							}
-						}
-					});
-				});
 		}
 
 		function loadMeanMedianModeChart(mean, median, mode, dataset) {
@@ -379,7 +330,7 @@
 				}, {
 					name: 'Mean Value',
 					type: 'line',
-					data: Array(dataset.length).fill(mean), // A line to represent the mean
+					data: Array(dataset.length).fill(mean),
 					color: '#434348',
 					marker: {
 						enabled: false
@@ -387,21 +338,21 @@
 				}, {
 					name: 'Median Value',
 					type: 'line',
-					data: Array(dataset.length).fill(median), // A line to represent the median
+					data: Array(dataset.length).fill(median),
 					color: '#90ed7d',
 					marker: {
 						enabled: false
 					},
-					dashStyle: 'Dash' // Dashed line to distinguish it
+					dashStyle: 'Dash'
 				}, {
 					name: 'Mode Value',
 					type: 'line',
-					data: Array(dataset.length).fill(mode), // A line to represent the mode
+					data: Array(dataset.length).fill(mode),
 					color: '#f7a35c',
 					marker: {
 						enabled: false
 					},
-					dashStyle: 'Dot' // Dotted line to distinguish it
+					dashStyle: 'Dot'
 				}],
 				plotOptions: {
 					column: {
@@ -417,13 +368,12 @@
 				}
 			});
 		}
-		
-		// Initialize and Load All Data on Page Load
+
 		window.onload = function () {
 			loadPointsStats();
-			loadBarChart();
-			loadLineChart();
+			loadTopTenVulnerabilities();
 		};
+
 
 	</script>
 
