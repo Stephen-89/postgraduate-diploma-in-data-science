@@ -1,8 +1,6 @@
 library(dplyr)
 library(ggplot2)
 
-csv_file_path <- "vulnerability_data.csv"
-
 top_20_vendors_with_most_vulnerabilities_chart <- function(csv_file_path) {
 
   cve_data <- read.csv(csv_file_path)
@@ -31,7 +29,7 @@ top_20_vendors_with_most_vulnerabilities_chart <- function(csv_file_path) {
          y = "Number of Vulnerabilities") +
     theme_dark() +
     theme(axis.text.y = element_text(size = 8),
-          legend.position = "right", # Position legend on the right
+          legend.position = "right",
           legend.title = element_text(size = 10),
           legend.text = element_text(size = 8))
 
@@ -41,5 +39,7 @@ top_20_vendors_with_most_vulnerabilities_chart <- function(csv_file_path) {
   cat("Chart saved as 'charts/1_top_20_vendors_with_most_vulnerabilities_chart.png'\n")
 
 }
+
+csv_file_path <- "vulnerability_data.csv"
 
 top_20_vendors_with_most_vulnerabilities_chart(csv_file_path)

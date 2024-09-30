@@ -23,8 +23,8 @@ top_20_vendors_with_most_vulnerabilities_chart <- function(csv_file_path) {
                                         y = Vulnerability_Count,
                                         size = Vulnerability_Count,
                                         fill = Vendor)) +
-    geom_point(shape = 21, alpha = 0.7) +  # shape 21 allows filling
-    scale_size(range = c(2, 10)) +  # Adjust the range of bubble sizes
+    geom_point(shape = 21, alpha = 0.7) +
+    scale_size(range = c(2, 10)) +
     coord_flip() +
     labs(title = "Top 20 Vendors with Most Vulnerabilities",
          x = "Vendor",
