@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Professional Dashboard</title>
+	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+	<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/highcharts@latest/highcharts.js"></script>
+	<style>
+		body {
+			font-family: Arial, sans-serif;
+			margin: 0;
+			padding: 0;
+		}
+
+		.navbar {
+			margin-bottom: 20px;
+		}
+
+		.card {
+			margin-bottom: 20px;
+		}
+
+		.chart-container {
+			margin-bottom: 20px;
+		}
+
+		.container {
+			padding-top: 20px;
+			max-width: 2400px;
+		}
+	</style>
+</head>
+
+<body>
+
+	<!-- Navigation Bar -->
+	<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+		<a class="navbar-brand" href="#">Dashboard</a>
+		<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
+			aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+			<span class="navbar-toggler-icon"></span>
+		</button>
+		<div class="collapse navbar-collapse" id="navbarNav">
+			<ul class="navbar-nav">
+				<li class="nav-item active">
+					<a class="nav-link" href="#charts">Charts</a>
+				</li>
+			</ul>
+		</div>
+	</nav>
+
+	<!-- Main Content -->
+	<div class="container">
+
+		<!-- Cards Section -->
+		<section id="cards">
+			<h2>Cards</h2>
+			<div class="row">
+				<!-- Card 1: Mean -->
+				<div class="col-md-3">
+					<div class="card">
+						<div class="card-body">
+							<h5 class="card-title">Mean</h5>
+							<p id="mean-value" class="card-text">Loading...</p>
+							<canvas id="meanChart" width="400" height="200"></canvas>
+						</div>
+					</div>
+				</div>
+				<!-- Card 2: Median -->
+				<div class="col-md-3">
+					<div class="card">
+						<div class="card-body">
+							<h5 class="card-title">Median</h5>
+							<p id="median-value" class="card-text">Loading...</p>
+							<canvas id="medianChart" width="400" height="200"></canvas>
+						</div>
+					</div>
+				</div>
+				<!-- Card 3: Mode -->
+				<div class="col-md-3">
+					<div class="card">
+						<div class="card-body">
+							<h5 class="card-title">Mode</h5>
+							<p id="mode-value" class="card-text">Loading...</p>
+							<canvas id="modeChart" width="400" height="200"></canvas>
+						</div>
+					</div>
+				</div>
+				<!-- Card 4: Standard Deviation -->
+				<div class="col-md-3">
+					<div class="card">
+						<div class="card-body">
+							<h5 class="card-title">Standard Deviation</h5>
+							<p id="std-value" class="card-text">Loading...</p>
+							<canvas id="stdChart" width="400" height="200"></canvas>
+						</div>
+					</div>
+				</div>
+			</div>
+		</section>
+
+		<!-- Cards Section 2 -->
+		<section id="cards">
+			<h2>Cards 2</h2>
+			<div class="row">
+				<div class="col-md-12">
+					<div class="card">
+						<div class="card-body">
+							<h5 class="card-title">Standard Deviation</h5>
+							<div id="meanMedianModeChartContainer" style="width: 100%; height: 400px;"></div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</section>
+
+		<!-- Charts Section -->
+		<section id="charts">
+			<h2>Charts</h2>
+			<div class="row">
+				<div class="col-md-6 chart-container">
+					<div class="card">
+						<div class="card-body">
+							<h5 class="card-title">Top 10 Posts by Comments (Bar Chart)</h5>
+							<canvas id="commentsBarChart" width="400" height="200"></canvas>
+						</div>
+					</div>
+				</div>
+				<div class="col-md-6 chart-container">
+					<div class="card">
+						<div class="card-body">
+							<h5 class="card-title">Top 10 Posts by Points (Line Chart)</h5>
+							<canvas id="pointsLineChart" width="400" height="200"></canvas>
+						</div>
+					</div>
+				</div>
+			</div>
+		</section>
+
+		<br>
+
+	</div>
+
+	<!-- JavaScript -->
+	<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+	<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+	<script>
+
+		// Utility: Title Truncation
+		function truncateTitle(title, maxLength = 15) {
+			return title.length > maxLength ? title.slice(0, maxLength) + '...' : title;
+		}
+
+		// Fetch and display vulnerability statistics (mean, median, mode, std)
+		function loadPointsStats() {
+			fetch('/api/v1.0/points-stats')
+				.then(response => response.json())
+				.then(data => {
+					// Update card values
+					document.getElementById('mean-value').textContent = data.mean;
+					document.getElementById('median-value').textContent = data.median;
+					document.getElementById('mode-value').textContent = data.mode;
+					document.getElementById('std-value').textContent = data.std;
+
+					// Load the charts for mean, median, mode, and standard deviation
+					loadPointsStatsMeanGraph(data.mean);
+					loadPointsStatsMedianGraph(data.median);
+					loadPointsStatsModeGraph(data.mode);
+					loadPointsStatsStdGraph(data.std);
+
+					// Load combined chart for mean, median, and mode
+					loadMeanMedianModeChart(data.mean, data.median, data.mode, data.values);
+				})
+				.catch(error => {
+					console.error('Error fetching stats:', error);
+				});
+		}
+
+		// Fetch and display the top 10 vulnerabilities
+		function loadTopTenVulnerabilities() {
+			fetch('/api/v1.0/vulnerabilities')
+				.then(response => response.json())
+				.then(data => {
+					const labels = data.map(vuln => truncateTitle(vuln.cve_id));
+					const baseScores = data.map(vuln => vuln.base_score);
+
+					// Create a bar chart for vulnerabilities
+					const ctx = document.getElementById('commentsBarChart').getContext('2d');
+					new Chart(ctx, {
+						type: 'bar',
+						data: {
+							labels: labels,
+							datasets: [{
+								label: 'Base Scores',
+								data: baseScores,
+								backgroundColor: 'rgba(54, 162, 235, 0.2)',
+								borderColor: 'rgba(54, 162, 235, 1)',
+								borderWidth: 1
+							}]
+						},
+						options: {
+							scales: {
+								y: {beginAtZero: true}
+							}
+						}
+					});
+				})
+				.catch(error => {
+					console.error('Error fetching vulnerabilities:', error);
+				});
+		}
+
+		// Charts for mean, median, mode, and standard deviation
+		function loadPointsStatsMeanGraph(mean) {
+			const ctx = document.getElementById('meanChart').getContext('2d');
+			new Chart(ctx, {
+				type: 'bar',
+				data: {
+					labels: ['Mean'],
+					datasets: [{
+						label: 'Mean Value',
+						data: [mean],
+						backgroundColor: 'rgba(75, 192, 192, 0.2)',
+						borderColor: 'rgba(75, 192, 192, 1)',
+						borderWidth: 1
+					}]
+				},
+				options: {
+					scales: {
+						y: {beginAtZero: true}
+					}
+				}
+			});
+		}
+
+		function loadPointsStatsMedianGraph(median) {
+			const ctx = document.getElementById('medianChart').getContext('2d');
+			new Chart(ctx, {
+				type: 'bar',
+				data: {
+					labels: ['Median'],
+					datasets: [{
+						label: 'Median Value',
+						data: [median],
+						backgroundColor: 'rgba(153, 102, 255, 0.2)',
+						borderColor: 'rgba(153, 102, 255, 1)',
+						borderWidth: 1
+					}]
+				},
+				options: {
+					scales: {
+						y: {beginAtZero: true}
+					}
+				}
+			});
+		}
+
+		function loadPointsStatsModeGraph(mode) {
+			const ctx = document.getElementById('modeChart').getContext('2d');
+			new Chart(ctx, {
+				type: 'bar',
+				data: {
+					labels: ['Mode'],
+					datasets: [{
+						label: 'Mode Value',
+						data: [mode],
+						backgroundColor: 'rgba(153, 102, 255, 0.2)',
+						borderColor: 'rgba(153, 102, 255, 1)',
+						borderWidth: 1
+					}]
+				},
+				options: {
+					scales: {
+						y: {beginAtZero: true}
+					}
+				}
+			});
+		}
+
+		function loadPointsStatsStdGraph(std) {
+			const ctx = document.getElementById('stdChart').getContext('2d');
+			new Chart(ctx, {
+				type: 'bar',
+				data: {
+					labels: ['Standard Deviation'],
+					datasets: [{
+						label: 'Standard Deviation Value',
+						data: [std],
+						backgroundColor: 'rgba(255, 99, 132, 0.2)',
+						borderColor: 'rgba(255, 99, 132, 1)',
+						borderWidth: 1
+					}]
+				},
+				options: {
+					scales: {
+						y: {beginAtZero: true}
+					}
+				}
+			});
+		}
+
+		function loadMeanMedianModeChart(mean, median, mode, dataset) {
+			Highcharts.chart('meanMedianModeChartContainer', {
+				chart: {
+					type: 'column'
+				},
+				title: {
+					text: 'Mean, Median, and Mode Representation'
+				},
+				xAxis: {
+					categories: Array.from({length: dataset.length}, (_, i) => `Value ${i + 1}`),
+					title: {
+						text: 'Data Points'
+					}
+				},
+				yAxis: [{
+					title: {
+						text: ''
+					},
+					min: 0
+				}],
+				series: [{
+					name: 'Dataset',
+					data: dataset,
+					color: '#7cb5ec'
+				}, {
+					name: 'Mean Value',
+					type: 'line',
+					data: Array(dataset.length).fill(mean),
+					color: '#434348',
+					marker: {
+						enabled: false
+					}
+				}, {
+					name: 'Median Value',
+					type: 'line',
+					data: Array(dataset.length).fill(median),
+					color: '#90ed7d',
+					marker: {
+						enabled: false
+					},
+					dashStyle: 'Dash'
+				}, {
+					name: 'Mode Value',
+					type: 'line',
+					data: Array(dataset.length).fill(mode),
+					color: '#f7a35c',
+					marker: {
+						enabled: false
+					},
+					dashStyle: 'Dot'
+				}],
+				plotOptions: {
+					column: {
+						dataLabels: {
+							enabled: true
+						}
+					},
+					line: {
+						dataLabels: {
+							enabled: false
+						}
+					}
+				}
+			});
+		}
+
+		window.onload = function () {
+			loadPointsStats();
+			loadTopTenVulnerabilities();
+		};
+
+
+	</script>
+
+</body>
+
+</html>
