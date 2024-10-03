@@ -27,7 +27,7 @@ top_5_vendors_by_number_of_vulnerabilities_published_per_months_chart <- functio
 
   title <- paste("Top 5 Vendors by Number of Vulnerabilities Published per Month:", start_date, "-", end_date)
 
-  ggplot(data = top_vendors, aes(x = YearMonth, y = Vulnerability_Count, fill = Vendor)) +
+  p <- ggplot(data = top_vendors, aes(x = YearMonth, y = Vulnerability_Count, fill = Vendor)) +
     geom_bar(stat = "identity", position = "dodge") +
     geom_text(aes(label = Vulnerability_Count), vjust = -0.3, size = 3, position = position_dodge(0.9)) +
     theme_dark() +
@@ -35,9 +35,12 @@ top_5_vendors_by_number_of_vulnerabilities_published_per_months_chart <- functio
          x = "Month",
          y = "Number of Vulnerabilities") +
     theme(axis.text.x = element_text(angle = 45, hjust = 1),
-          legend.position = "right", # Position legend on the right
+          legend.position = "right",
           legend.title = element_text(size = 10),
-          legend.text = element_text(size = 8))
+          legend.text = element_text(size = 8)) +
+    scale_fill_discrete(name = "Vendor")
+
+  print(p)
 
   ggsave("charts/2_top_5_vendors_by_number_of_vulnerabilities_published_per_months_chart.png", width = 10, height = 6)
   cat("Chart saved as 'charts/2_top_5_vendors_by_number_of_vulnerabilities_published_per_months_chart.png'\n")
@@ -49,3 +52,4 @@ start_date <- as.Date("2020-01-01")
 end_date <- as.Date("2020-12-31")
 
 top_5_vendors_by_number_of_vulnerabilities_published_per_months_chart(csv_file_path, start_date, end_date)
+
