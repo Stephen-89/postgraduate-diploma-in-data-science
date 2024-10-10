@@ -1,38 +1,123 @@
+#' ---
+#' title: "Assignment 3 Descriptive Statistics"
+#' author: "Stephen Hoey"
+#' date: "Oct 10th, 2024"
+#' ---
+
+library(car)
 library(ggplot2)
+library(e1071)
+library(dplyr)
 
+#-------------------------------------------------------#
+#Q1 Import Premiums data.
+#-------------------------------------------------------#
 
-# Import Premiums data. 
 Premium <- read.csv("Premiums.csv", header = T, stringsAsFactors=T)
 
 
-# Obtain the Mode for the count of policies available across each Zone.
-mode <- function(x) {
-  uniq_x <- unique(x)
-  uniq_x[which.max(tabulate(match(x, uniq_x)))]
+#-------------------------------------------------------#
+#Q2 Obtain the Mode for the count of policies available across each Zone.
+#-------------------------------------------------------#
+
+getmode <- function(x) {
+  mode <- unique(x)
+  mode[which.max(tabulate(match(x, mode)))]
 }
-mode_by_zone_name <- aggregate(Premium ~ ZONE_NAME, data = Premium, FUN = mode)
+mode_by_zone_name <- aggregate(Premium ~ ZONE_NAME, data = Premium, FUN = getmode)
+
 print(mode_by_zone_name)
 
 
-# Obtain box-whisker plots for Vintage period. 
-boxplot(Premium$Vintage_Period, main = "Box-whisker plots for Vintage period.", ylab = "Vintage Period", col = "lightblue", border = "darkblue")
+#-------------------------------------------------------#
+#Q3 Obtain box-whisker plots for Vintage period.
+#-------------------------------------------------------#
 
-# Detect outliers if present. Hint: use Boxplot() function of ‘car’ Package
+boxplot(Premium$Vintage_Period, 
+        main = "Box-whisker plots for Vintage Period.", 
+        xlab = "Vintage Period",
+        ylab = "Values",
+        col = "lightblue", 
+        border = "#0c4c8a")
 
 
-# Find skewness and kurtosis of Premium amount by Zone.
+#-------------------------------------------------------#
+#Q4 Detect outliers if present. Hint: use Boxplot() function of ‘car’ Package
+#-------------------------------------------------------#
+
+Boxplot(Premium$Vintage_Period, 
+        main = "Outliers boxplot of Vintage Period.",
+        xlab = "Vintage Period",
+        ylab = "Values",
+        col = "lightblue",
+        border = "#0c4c8a")
 
 
-# Draw a scatter plot of Premium and Vintage period. 
-ggplot(Premium, aes(x = Vintage_Period, y = Premium)) +
-  geom_point(color = "blue", size = 2) +
-  geom_smooth(method = "lm", color = "red") +
-  labs(title = "Scatter Plot of Premium and Vintage Period",
-       x = "Vintage Period",
-       y = "Premium") +
+#-------------------------------------------------------#
+#Q5 Find skewness and kurtosis of Premium amount by Zone.
+#-------------------------------------------------------#
+
+summary_stats <- Premium %>%
+  group_by(ZONE_NAME) %>%
+  summarise(
+    Skewness = skewness(Premium),
+    Kurtosis = kurtosis(Premium)
+  )
+
+print(summary_stats)
+
+ggplot(summary_stats, aes(x = ZONE_NAME, y = Skewness, fill = ZONE_NAME)) +
+  geom_bar(stat = "identity") +
+  geom_text(aes(label = round(Skewness, 2)),
+            vjust = -0.5,
+            size = 4) +
+  labs(title = "Skewness of Premiums by Zone Name", x = "Zone Name", y = "Skewness") +
+  theme_dark()
+
+ggplot(summary_stats, aes(x = ZONE_NAME, y = Kurtosis, fill = ZONE_NAME)) +
+  geom_bar(stat = "identity") +
+  geom_text(aes(label = round(Kurtosis, 2)), colour = "white",
+            vjust = -0.5,
+            size = 4) +
+  labs(title = "Kurtosis of Premiums by Zone Name", x = "Zone Name", y = "Kurtosis") +
   theme_dark()
 
 
-# Find the correlation coefficient between Premium and Vintage period and interpret the value.
-correlation_coefficient <- cor(Premium$Premium, Premium$Vintage_Period, use = "complete.obs")
-cat("Correlation Coefficient between Premium and Vintage Period:", correlation_coefficient, "\n")
+#-------------------------------------------------------#
+#Q6 Draw a scatter plot of Premium and Vintage period. 
+#-------------------------------------------------------#
+
+ggplot(Premium, aes(x = Premium, y = Vintage_Period)) +
+  geom_point(color = "white", size = 2) +
+  geom_smooth(method = "lm", color = "#0c4c8a") +
+  labs(title = "Scatter Plot of Premium and Vintage Period",
+       x = "Premium",
+       y = "Vintage Period") +
+  theme_dark()
+
+
+#-------------------------------------------------------#
+#Q7 Find the correlation coefficient between Premium and Vintage period and interpret the value.
+#-------------------------------------------------------#
+
+correlation_coefficient <- cor(Premium$Premium, Premium$Vintage_Period)
+
+print(correlation_coefficient)
+
+getrelationship <- function(x) {
+  if (x == 1) {
+    return("Correlation Coefficient indicates a perfect positive relationship.")
+  } else if (x == -1) {
+    return("Correlation Coefficient indicates a perfect negative relationship.")
+  } else if (x > 0) {
+    return("Correlation Coefficient indicates a positive relationship.")
+  } else if (x < 0) {
+    return("Correlation Coefficient indicates a negative relationship.")
+  } else {
+    return("Correlation Coefficient indicates no relationship.")
+  }
+}
+
+relationship <- getrelationship(correlation_coefficient)
+
+print(relationship)

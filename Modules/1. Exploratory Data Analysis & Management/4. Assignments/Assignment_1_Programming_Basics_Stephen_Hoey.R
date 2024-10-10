@@ -1,3 +1,9 @@
+#' ---
+#' title: "Assignment 1 Programming Basics"
+#' author: "Stephen Hoey"
+#' date: "Oct 10th, 2024"
+#' ---
+
 #-------------------------------------------------------#
 #Q1 Create a matrix with three rows A, B and C and four columns with names Q, W, E and R. Fill the matrix with any numbers between 1 and 10.
 #-------------------------------------------------------#
@@ -5,6 +11,7 @@
 q1_matrix <- matrix(c(6,1,5,9,2,6,2,3,7,4,8,5),nrow=3,ncol=4)
 rownames(q1_matrix) <- c("A","B","C")
 colnames(q1_matrix) <- c("Q","W","E","R")
+
 print(q1_matrix)
 
 
@@ -20,10 +27,17 @@ class_x <- class(x)
 class_y <- class(y)
 class_z <- class(z)
 
+print(class_x)
+print(class_y)
+print(class_z)
+
 factor_x <- factor(x)
 factor_y <- factor(y)
 factor_z <- factor(z)
 
+print(factor_x)
+print(factor_y)
+print(factor_z)
 
 #-------------------------------------------------------#
 #Q3 q = 65.9836
@@ -36,6 +50,9 @@ q = 65.9836
 q3_a_square_root_q <- round(sqrt(q),3)
 q3_b_log10_less_than_2 <- log10(q)<2
 
+print(q3_a_square_root_q)
+
+print(q3_b_log10_less_than_2)
 
 #-------------------------------------------------------#
 #Q4 x = c(“Intelligence”, “Knowledge”, “Wisdom”, “Comprehension”), y = “I am”, z = “intelligent”
@@ -52,6 +69,11 @@ q4_a_first_4_letters_in_x <- substr(x, 1, 4)
 q4_b_combine_y_and_z <- paste(y,z)
 q4_c_toupper_x <- toupper(x)
 
+print(q4_a_first_4_letters_in_x)
+
+print(q4_b_combine_y_and_z)
+
+print(q4_c_toupper_x)
 
 #-------------------------------------------------------#
 #Q5 a = c(3,4,14,17,3,98,66,85,44) Print “Yes” if the numbers in ‘a’ are divisible by 3 and “No” if they are not divisible by 3 using ifelse().
@@ -59,6 +81,7 @@ q4_c_toupper_x <- toupper(x)
 
 a = c(3,4,14,17,3,98,66,85,44)
 divisible_by_3 <- ifelse(a %% 3 == 0,"Yes","No")
+
 print(divisible_by_3)
 
 
@@ -86,11 +109,17 @@ Date = "01/30/18"
 #Q7 a
 Date_new <- as.Date(Date, format = "%m/%d/%y")
 
+print(Date_new)
+
 #Q7 b
 day_of_week <- format(Date_new, "%d")
 month <- format(Date_new, "%m")
 
+print(day_of_week)
+
+print(month)
+
 #Q7 c
-todays_date <- Sys.Date()
-difference_in_days <- todays_date - Date_new
+difference_in_days <- Sys.Date() - Date_new
+
 print(difference_in_days)

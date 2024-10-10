@@ -1,3 +1,9 @@
+#' ---
+#' title: "Assignment 2 Data Management"
+#' author: "Stephen Hoey"
+#' date: "Oct 10th, 2024"
+#' ---
+
 library(xlsx)
 
 #-------------------------------------------------------#
@@ -14,7 +20,9 @@ Premium <- read.csv("Premiums.csv", header = T, stringsAsFactors=T)
 row_column <- dim(Premium)
 num_rows <- row_column[1]
 num_columns <- row_column[2]
+
 print(num_rows)
+
 print(num_columns)
 
 
@@ -37,17 +45,15 @@ summary(Premium)
 #Q5 Display top 5 and bottom 5 policies in terms of premium amount.
 #-------------------------------------------------------#
 
-top_policies <- Premium[order(-Premium$Premium), ]
-top_5_policies <- top_policies[1:5, ]
+top_5_policies <- Premium[order(-Premium$Premium), ][1:5, ]
 print(top_5_policies)
 
-bottom_policies <- Premium[order(Premium$Premium), ]
-bottom_5_policies <- bottom_policies[1:5, ]
+bottom_5_policies <- Premium[order(Premium$Premium), ][1:5, ]
 print(bottom_5_policies)
 
 
 #-------------------------------------------------------#
-#Q6 Calculate the sum for variable ‘Sum_Assured’ by ‘Region’ variable.
+#Q6 Calculate the sum for variable ???Sum_Assured??? by ???Region??? variable.
 #-------------------------------------------------------#
 
 sum_for_sum_assured_by_regions <- aggregate(Sum_Assured ~ REGION, data = Premium, FUN = sum)
