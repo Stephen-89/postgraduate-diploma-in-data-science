@@ -1,7 +1,7 @@
 #' ---
 #' title: "Assignment 3 Descriptive Statistics"
 #' author: "Stephen Hoey"
-#' date: "Oct 10th, 2024"
+#' date: "Oct 11th, 2024"
 #' ---
 
 library(car)
@@ -109,12 +109,14 @@ getrelationship <- function(x) {
     return("Correlation Coefficient indicates a perfect positive relationship.")
   } else if (x == -1) {
     return("Correlation Coefficient indicates a perfect negative relationship.")
-  } else if (x > 0) {
+  } else if (x == 0) {
+    return("Correlation Coefficient indicates no relationship.")
+  } else if (x > 0 && x < 1) {
     return("Correlation Coefficient indicates a positive relationship.")
-  } else if (x < 0) {
+  } else if (x > -1 && x < 0) {
     return("Correlation Coefficient indicates a negative relationship.")
   } else {
-    return("Correlation Coefficient indicates no relationship.")
+    return("Correlation Coefficient out of bounds. It should be between -1 and 1.")
   }
 }
 

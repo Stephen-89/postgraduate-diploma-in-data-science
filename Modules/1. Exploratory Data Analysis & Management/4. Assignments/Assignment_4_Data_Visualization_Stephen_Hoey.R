@@ -1,7 +1,7 @@
 #' ---
 #' title: "Assignment 4 Data Visualization"
 #' author: "Stephen Hoey"
-#' date: "Oct 10th, 2024"
+#' date: "Oct 11th, 2024"
 #' ---
 
 library(RColorBrewer)

@@ -1,7 +1,7 @@
 #' ---
 #' title: "Assignment 1 Programming Basics"
 #' author: "Stephen Hoey"
-#' date: "Oct 10th, 2024"
+#' date: "Oct 9th, 2024"
 #' ---
 
 #-------------------------------------------------------#
@@ -113,10 +113,11 @@ print(Date_new)
 
 #Q7 b
 day_of_week <- format(Date_new, "%d")
-month <- format(Date_new, "%m")
-
 print(day_of_week)
 
+month <- format(Date_new, "%m")
+print(month)
+month <- format(Date_new, "%B")
 print(month)
 
 #Q7 c

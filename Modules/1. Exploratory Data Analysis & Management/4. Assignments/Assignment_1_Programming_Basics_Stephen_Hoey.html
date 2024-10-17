@@ -351,7 +351,7 @@ display: none;
 
 <h1 class="title toc-ignore">Assignment 1 Programming Basics</h1>
 <h4 class="author">Stephen Hoey</h4>
-<h4 class="date">Oct 10th, 2024</h4>
+<h4 class="date">Oct 9th, 2024</h4>
 
 </div>
 
@@ -478,12 +478,14 @@ print(Date_new)</code></pre>
 <pre><code>## [1] &quot;2018-01-30&quot;</code></pre>
 <pre class="r"><code>#Q7 b
 day_of_week &lt;- format(Date_new, &quot;%d&quot;)
-month &lt;- format(Date_new, &quot;%m&quot;)
-
 print(day_of_week)</code></pre>
 <pre><code>## [1] &quot;30&quot;</code></pre>
-<pre class="r"><code>print(month)</code></pre>
+<pre class="r"><code>month &lt;- format(Date_new, &quot;%m&quot;)
+print(month)</code></pre>
 <pre><code>## [1] &quot;01&quot;</code></pre>
+<pre class="r"><code>month &lt;- format(Date_new, &quot;%B&quot;)
+print(month)</code></pre>
+<pre><code>## [1] &quot;January&quot;</code></pre>
 <pre class="r"><code>#Q7 c
 difference_in_days &lt;- Sys.Date() - Date_new
 

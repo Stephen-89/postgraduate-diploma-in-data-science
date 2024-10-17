@@ -1,0 +1,44 @@
+{
+    "CVE_data_type": "CVE",
+    "CVE_data_format": "MITRE",
+    "CVE_data_version": "4.0",
+    "CVE_data_numberOfCVEs": "1234",
+    "CVE_Items": [
+      {
+        "cve": {
+          "CVE_data_meta": {
+            "ID": "CVE-2024-0001"
+          },
+          "description": {
+            "description_data": [
+              {
+                "lang": "en",
+                "value": "Sample vulnerability description."
+              }
+            ]
+          }
+        },
+        "configurations": {
+          "nodes": [
+            {
+              "cpe_match": [
+                {
+                  "vulnerable": true,
+                  "cpe23Uri": "cpe:2.3:a:sample_vendor:sample_product:1.0:*:*:*:*:*:*:*"
+                }
+              ]
+            }
+          ]
+        },
+        "impact": {
+          "baseMetricV3": {
+            "cvssV3": {
+              "baseScore": 7.5
+            }
+          }
+        },
+        "publishedDate": "2024-01-01T00:00Z",
+        "lastModifiedDate": "2024-01-01T00:00Z"
+      }
+    ]
+}

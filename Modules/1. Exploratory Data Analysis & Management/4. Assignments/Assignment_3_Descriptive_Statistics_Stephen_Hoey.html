@@ -351,7 +351,7 @@ display: none;
 
 <h1 class="title toc-ignore">Assignment 3 Descriptive Statistics</h1>
 <h4 class="author">Stephen Hoey</h4>
-<h4 class="date">Oct 10th, 2024</h4>
+<h4 class="date">Oct 11th, 2024</h4>
 
 </div>
 
@@ -477,12 +477,14 @@ print(correlation_coefficient)</code></pre>
     return(&quot;Correlation Coefficient indicates a perfect positive relationship.&quot;)
   } else if (x == -1) {
     return(&quot;Correlation Coefficient indicates a perfect negative relationship.&quot;)
-  } else if (x &gt; 0) {
+  } else if (x == 0) {
+    return(&quot;Correlation Coefficient indicates no relationship.&quot;)
+  } else if (x &gt; 0 &amp;&amp; x &lt; 1) {
     return(&quot;Correlation Coefficient indicates a positive relationship.&quot;)
-  } else if (x &lt; 0) {
+  } else if (x &gt; -1 &amp;&amp; x &lt; 0) {
     return(&quot;Correlation Coefficient indicates a negative relationship.&quot;)
   } else {
-    return(&quot;Correlation Coefficient indicates no relationship.&quot;)
+    return(&quot;Correlation Coefficient out of bounds. It should be between -1 and 1.&quot;)
   }
 }
 
